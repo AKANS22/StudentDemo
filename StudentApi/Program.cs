@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudentEnrollmentModels;
+using StudentApi;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,6 +82,10 @@ app.MapDelete("/courses{id}", async (StudentEnrollmentDbContext context, int id)
     }
 
 });
+
+app.MapStudentEndpoints();
+
+app.MapEnrollmentEndpoints();
 
 
 
