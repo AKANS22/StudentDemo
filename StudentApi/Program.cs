@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudentEnrollmentModels;
 
@@ -16,10 +18,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy => policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().AllowCredentials());
+    options.AddPolicy("AllowAll", policy => policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
         
-
-
 });
 
 var app = builder.Build();
@@ -33,33 +33,55 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors();
+app.UseCors("AllowAll");
 
-var summaries = new[]
+app.MapGet("/courses", async (StudentEnrollmentDbContext context) =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    await context.courses.ToListAsync();
+});
 
-app.MapGet("/weatherforecast", () =>
+
+app.MapGet("/courses{id}", async (StudentEnrollmentDbContext context, int id) =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+   return await context.courses.FindAsync(id) is Course course ? Results.Ok(course) : Results.NotFound();
+
+});
+
+app.MapPost("/courses", async (StudentEnrollmentDbContext context, Course course) =>
+{
+    await context.AddAsync(course);
+    await context.SaveChangesAsync();
+
+    return Results.Created($"/courses/{course.CourseId}", course);
+
+});
+
+app.MapPut("/courses{id}", async (StudentEnrollmentDbContext context, Course course, int id) =>
+{
+    var recordExist = await context.courses.AnyAsync( q=> q.CourseId == course.CourseId);
+    if (!recordExist) return Results.NotFound();
+
+
+    context.Update(course);
+    await context.SaveChangesAsync();
+
+    return Results.NoContent();
+
+});
+
+app.MapDelete("/courses{id}", async (StudentEnrollmentDbContext context, int id) =>
+{
+    var record = await context.courses.FindAsync(id);
+    if (record == null) return Results.NotFound();
+    {
+        context.Remove(record);
+        await context.SaveChangesAsync();
+        return Results.NoContent();
+    }
+
+});
+
 
 
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
