@@ -1,22 +1,15 @@
-﻿namespace StudentEnrollmentModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace StudentEnrollmentModels
 {
     public abstract class BaseModel
     {
+        [Key]
         int Id { get; set; }
-        public DateTime? CreatedDate { get; set; }
-        public string createdBy { get; set; }
-        public DateTime? UpdatedDate { get;}
-        public string updatedBy { get; set; }
-
-    }
-
-    public class Student: BaseModel 
-    {
-        
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public DateTime DateOfBirth { get; set; }
-        public string StudentId { get; set; } = string.Empty;
+        public DateTime? CreatedDate { get; set; } = DateTime.MinValue;
+        public string createdBy { get; set; } = string.Empty;
+        public DateTime? UpdatedDate { get;} = DateTime.MinValue;
+        public string updatedBy { get; set; } = string.Empty;
 
     }
 }
