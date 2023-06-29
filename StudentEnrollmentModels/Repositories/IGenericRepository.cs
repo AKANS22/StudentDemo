@@ -8,12 +8,12 @@ namespace StudentEnrollmentModels.Repositories
 {
     public interface IGenericRepository<TEntity> where TEntity : BaseModel
     {
-        Task<TEntity> GetAsync(TEntity entity);
+        Task<TEntity> GetAsync(int id);
         Task<List<TEntity>> GetAllAsync();
         Task<TEntity> AddAsync(TEntity entity); 
-        Task<TEntity> UpdateAsync(TEntity entity);
-        Task DeleteAsync(int Id);
-        Task<bool> Exist (TEntity entity);
+        Task UpdateAsync(TEntity entity);
+        Task DeleteAsync(int id);
+        Task<bool> Exists (int id);
        
     }
 

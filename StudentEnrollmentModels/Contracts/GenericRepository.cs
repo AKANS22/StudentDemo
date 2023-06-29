@@ -1,38 +1,51 @@
-﻿using StudentEnrollmentModels.Repositories;
+﻿using Microsoft.EntityFrameworkCore;
+using StudentEnrollmentModels.Repositories;
 
 namespace StudentEnrollmentModels.Contracts
 {
     public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : BaseModel
     {
+        protected readonly StudentEnrollmentDbContext _db;
 
-        public Task<TEntity> AddAsync(TEntity entity)
+        public GenericRepository(StudentEnrollmentDbContext db)
         {
-            throw new NotImplementedException();
+            this._db = db;
+        }
+        public async Task<TEntity> AddAsync(TEntity entity)
+        {
+            await _db.AddAsync(entity);
+            _db.SaveChangesAsync();
+            return entity;
         }
 
-        public Task DeleteAsync(int Id)
+        public async Task DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            var entity = await GetAsync(id);
+            _db.Set<TEntity>().Remove(entity);
+            await _db.SaveChangesAsync();
+
         }
 
-        public Task<bool> Exist(TEntity entity)
+        public async Task<bool> Exists(int id)
         {
-            throw new NotImplementedException();
+            return await _db.Set<TEntity>().AnyAsync(q => q.Id == id);
+        }
+                
+        public async Task<List<TEntity>> GetAllAsync()
+        {
+            return await _db.Set<TEntity>().ToListAsync();
         }
 
-        public Task<List<TEntity>> GetAllAsync()
+        public async Task<TEntity> GetAsync(int id)
         {
-            throw new NotImplementedException();
+           var result = await _db.Set<TEntity>().FindAsync(id);
+            return result;
         }
 
-        public Task<TEntity> GetAsync(TEntity entity)
+        public async Task UpdateAsync(TEntity entity)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<TEntity> UpdateAsync(TEntity entity)
-        {
-            throw new NotImplementedException();
+           _db.Update(entity);
+            await _db.SaveChangesAsync();
         }
     }
 
