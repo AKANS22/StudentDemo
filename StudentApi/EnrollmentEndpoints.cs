@@ -1,6 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.OpenApi;
 using StudentEnrollmentModels;
+using AutoMapper;
+using StudentApi.DTOs.EnrollmentDTO;
+using StudentApi.DTOs.CourseDTOs;
+using Microsoft.PowerBI.Api.Models;
+
 namespace StudentApi;
 
 public static class EnrollmentEndpoints
@@ -9,67 +14,77 @@ public static class EnrollmentEndpoints
     {
         var group = routes.MapGroup("/api/Enrollment").WithTags(nameof(Enrollment));
 
-        group.MapGet("/", async (StudentEnrollmentDbContext db) =>
+        group.MapGet("/", async (StudentEnrollmentDbContext db, IMapper mapper) =>
         {
-            return await db.enrollments.ToListAsync();
+            var enroll = await db.enrollments.ToListAsync();
+            return mapper.Map<List<EnrollmentDTO>>(enroll);
+            
         })
         .WithName("GetAllEnrollments")
         .WithOpenApi()
-        .Produces<List<Enrollment>>(StatusCodes.Status200OK);
+        .Produces<List<EnrollmentDTO>>(StatusCodes.Status200OK);
 
-        group.MapGet("/{id}", async  (int courseid, StudentEnrollmentDbContext db) =>
+        group.MapGet("/{id}", async (int CourseId, StudentEnrollmentDbContext db, IMapper mapper) =>
         {
-            return await db.enrollments.AsNoTracking()
-                .FirstOrDefaultAsync(model => model.CourseId == courseid)
+
+            return await db.enrollments.FindAsync(CourseId)
                 is Enrollment model
-                    ? Results.Ok(model)
+                    ? Results.Ok(mapper.Map<EnrollmentDTO>(model))
                     : Results.NotFound();
+            ;
         })
         .WithName("GetEnrollmentById")
-        .WithOpenApi()
-        .Produces<Enrollment>(StatusCodes.Status200OK)
-        .Produces(StatusCodes.Status404NotFound);
+        .Produces<List<EnrollmentDTO>>(StatusCodes.Status200OK).WithOpenApi()
+        .WithOpenApi();
+         
 
-        group.MapPut("/{id}", async  (int courseid, Enrollment enrollment, StudentEnrollmentDbContext db) =>
+        group.MapPut("/{id}", async (int courseid, EnrollmentDTO enrollmentDTO, StudentEnrollmentDbContext db, IMapper mapper) =>
         {
-            var affected = await db.enrollments
-                .Where(model => model.CourseId == courseid)
-                .ExecuteUpdateAsync(setters => setters
-                  .SetProperty(m => m.CourseId, enrollment.CourseId)
-                  .SetProperty(m => m.StudentId, enrollment.StudentId)
-                  .SetProperty(m => m.CreatedDate, enrollment.CreatedDate)
-                  .SetProperty(m => m.createdBy, enrollment.createdBy)
-                  .SetProperty(m => m.updatedBy, enrollment.updatedBy)
-                );
+            var foundModel = await db.enrollments.FindAsync(courseid);
+            if (foundModel is  null)
+            {
 
-            return affected == 1 ? Results.Ok() : Results.NotFound();
+                return Results.NotFound();
+            }
+            mapper.Map(enrollmentDTO, foundModel);
+            await db.SaveChangesAsync();
+
+            return Results.NoContent();
+
+
         })
         .WithName("UpdateEnrollment")
         .WithOpenApi()
-        .Produces(StatusCodes.Status404NotFound)
-        .Produces(StatusCodes.Status204NoContent);
+        .Produces<List<EnrollmentDTO>>(StatusCodes.Status404NotFound);
+        
 
-        group.MapPost("/", async (Enrollment enrollment, StudentEnrollmentDbContext db) =>
+        group.MapPost("/", async (EnrollmentPostDTO enrollmentDTO, StudentEnrollmentDbContext db, IMapper mapper) =>
         {
-            db.enrollments.Add(enrollment);
+            var enroll = mapper.Map<Enrollment>(enrollmentDTO);
+            db.enrollments.Add(enroll);
             await db.SaveChangesAsync();
-            return Results.Created($"/api/Enrollment/{enrollment.CourseId}",enrollment);
+            return Results.Created($"Enrollment/{enrollmentDTO.CourseId}", enroll);
+            
         })
         .WithName("CreateEnrollment")
         .WithOpenApi()
-        .Produces<Enrollment>(StatusCodes.Status201Created);
+        .Produces<List<EnrollmentPostDTO>>(StatusCodes.Status201Created);
 
-        group.MapDelete("/{id}", async  (int courseid, StudentEnrollmentDbContext db) =>
+        group.MapDelete("/{id}", async (int CourseId, StudentEnrollmentDbContext db) =>
         {
-            var affected = await db.enrollments
-                .Where(model => model.CourseId == courseid)
-                .ExecuteDeleteAsync();
+            if (await db.enrollments.FindAsync(CourseId) is Enrollment enrollment)
+            {
+                db.enrollments.Remove(enrollment);
+                await db.SaveChangesAsync();
+                return Results.Ok(enrollment);
 
-            return affected == 1 ? Results.Ok() : Results.NotFound();
-        })
-        .WithName("DeleteEnrollment")
-        .WithOpenApi()
-        .Produces<Enrollment>(StatusCodes.Status200OK)
-        .Produces(StatusCodes.Status404NotFound);
+            }
+            return Results.NotFound();
+        });
+       
+
+
+
+
     }
 }
