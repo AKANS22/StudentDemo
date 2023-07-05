@@ -4,7 +4,7 @@ namespace StudentEnrollmentModels
 {
     public abstract class BaseModel
     {
-        [Key]
+        
         public int Id { get; set; }
         public DateTime? CreatedDate { get; set; } = DateTime.MinValue;
         public string createdBy { get; set; } = string.Empty;

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,6 +23,8 @@ namespace StudentEnrollmentModels
             base.OnModelCreating(builder);
             builder.ApplyConfiguration(new CourseConfiguration());
             builder.ApplyConfiguration(new UserRoleConfiguration());
+            //builder.Entity<Enrollment>().HasKey(nameof(Enrollment.Id), nameof(Enrollment.CourseId));
+            //builder.Entity<Course>().HasKey(nameof(Enrollment.Id), nameof(Enrollment.CourseId));
 
         }
 

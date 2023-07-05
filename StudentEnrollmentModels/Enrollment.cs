@@ -1,11 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace StudentEnrollmentModels
 {
+    //[PrimaryKey(nameof(Id), nameof(CourseId))]
     public class Enrollment : BaseModel
     {
         [Key]
-        public int CourseId { get; set; }
+        public int CourseId { get; set; } 
         public int StudentId { get; set; }
 
         public virtual Course Course { get; set; }

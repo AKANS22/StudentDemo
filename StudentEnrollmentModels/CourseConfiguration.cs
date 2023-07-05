@@ -17,16 +17,18 @@ namespace StudentEnrollmentModels
                 {
                     CourseId = 1,
                     Title = "Minimal Api Developement",
-                    Credit = 3
+                    Credit = 3,
+                    //IsCertified = false
 
                 },
                 new Course
                 {
                     CourseId = 2,
                     Title = "second Minimal Api Developement",
-                    Credit = 4
+                    Credit = 4,
+                    //IsCertified = false
 
-                });
+                }); 
 
 
         }
