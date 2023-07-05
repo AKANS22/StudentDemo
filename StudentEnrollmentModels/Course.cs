@@ -5,7 +5,7 @@ namespace StudentEnrollmentModels
 {
     public class Course: BaseModel
     {
-        [Key]
+        
         public int CourseId { get; set; }
         public string Title { get; set; }
         public int Credit { get; set; }
