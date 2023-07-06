@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace StudentEnrollmentModels.Contracts
 {
-    internal class IEnrollmentRepository
+    public interface IEnrollmentRepository : IGenericRepository<Enrollment>
     {
+
     }
 }

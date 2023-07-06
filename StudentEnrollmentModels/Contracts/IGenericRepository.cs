@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StudentEnrollmentModels.Repositories
+namespace StudentEnrollmentModels.Contracts
 {
     public interface IGenericRepository<TEntity> where TEntity : BaseModel
     {

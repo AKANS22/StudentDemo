@@ -15,22 +15,3 @@ namespace StudentEnrollmentModels.Contracts
     }
 }
 
-namespace StudentEnrollmentModels.Repositories
-{
-    public class StudentRepository : GenericRepository<Student>, IStudentRepository
-    {
-        public StudentRepository(StudentEnrollmentDbContext db) : base(db)
-        {
-        }
-
-        public async Task<Student> GetStudentDetails(string studentId)
-        {
-            var student = await _db.students
-                .Include(x => x.Enrollments).ThenInclude(q => q.Course)
-                .FirstOrDefaultAsync(c => c.StudentId == studentId);
-
-            return student;
-
-        }
-    }
-}

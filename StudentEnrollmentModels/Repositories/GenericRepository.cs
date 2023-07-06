@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using StudentEnrollmentModels.Contracts;
 using StudentEnrollmentModels.Repositories;
 
-namespace StudentEnrollmentModels.Contracts
+namespace StudentEnrollmentModels.Repositories
 {
     public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : BaseModel
     {

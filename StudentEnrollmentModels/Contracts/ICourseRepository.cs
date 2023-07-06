@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StudentEnrollmentModels.Repositories
+namespace StudentEnrollmentModels.Contracts
 {
-    internal class ICourseRepository
+    public interface ICourseRepository : IGenericRepository<Course>
     {
+        Task<Course> GetCourseLink(int courseId);
     }
 }

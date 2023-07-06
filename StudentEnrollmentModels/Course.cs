@@ -9,6 +9,7 @@ namespace StudentEnrollmentModels
         public int CourseId { get; set; }
         public string Title { get; set; }
         public int Credit { get; set; }
+        public List<Enrollment> enrollments { get; set; } = new List<Enrollment>();
         //[Required]
       //  public bool IsCertified { get; set; }
 
